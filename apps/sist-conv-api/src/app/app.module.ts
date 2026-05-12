@@ -7,6 +7,7 @@ import authConfig from './config/auth.config';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { databaseConfig } from './config/database.config';
+import { BusinessModule } from './business/business.module';
 
 
 @Module({
@@ -18,6 +19,7 @@ import { databaseConfig } from './config/database.config';
     TypeOrmModule.forRootAsync(databaseConfig),
     UsersModule,
     AuthModule,
+    BusinessModule,
   ],
   providers: [
     {
