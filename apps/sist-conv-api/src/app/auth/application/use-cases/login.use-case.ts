@@ -32,12 +32,17 @@ async execute(email: string, password: string) {
   const payload: AuthPayload = {
     sub: user.id,
     email: user.email,
+    name: user.name,
+    lastname: user.lastname,
+    career: user.career,
+    dni: user.dni,
     role: user.role,
     changePassword: user.passwordChanged,
   };
 
   return {
     access_token: this.jwtService.sign(payload),
+    refresh_token: this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' }),
   };
 }
 }

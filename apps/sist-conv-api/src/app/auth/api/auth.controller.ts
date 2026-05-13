@@ -1,4 +1,4 @@
-import { Body, Controller, Get, InternalServerErrorException, Post, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, InternalServerErrorException, Patch, Post, Res, UseGuards } from "@nestjs/common";
 import { LoginUseCase } from "../application/use-cases/login.use-case";
 import { ChangePasswordUseCase } from "../application/use-cases/change-password.use-case";
 import { JwtAuthGuard } from "../../common/security/jwt-auth.guard";
@@ -33,16 +33,43 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24,
     });
 
+    res.cookie('refresh_token', result.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
     return { ok: true };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/change-password')
-  changePassword(
+  @Patch('/change-password')
+  async changePassword(
+    @Res({ passthrough: true }) res: Response,
     @CurrentUser() user: AuthPayload,
     @Body() dto: ChangePasswordDto,
   ) {
-    return this.changePass.execute(user.sub, dto);
+    const result = await this.changePass.execute(user.sub, dto)
+
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24
+    });
+
+    res.cookie('refresh_token', result.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    return { success: true, }
+
   }
 
   @UseGuards(JwtAuthGuard)
@@ -55,6 +82,12 @@ export class AuthController {
       path: '/'
     });
 
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure:true,
+      sameSite: 'lax',
+    });
+
     return { ok: true };
   }
 
@@ -64,7 +97,11 @@ export class AuthController {
     return {
       id: user.sub,
       email: user.email,
-      role: user.role,
+      name: user.name,
+      lastname: user.lastname,
+      career: user.career,
+      dni: user.dni,
+      userType: user.role,
       changePassword: user.changePassword
     }
   }

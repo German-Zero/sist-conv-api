@@ -11,14 +11,16 @@ import 'reflect-metadata'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.MI_DOMINIO,
+    ],
     credentials: true,
   });
   app.use(cookieParser());
-  app.setGlobalPrefix(globalPrefix);
+  app.setGlobalPrefix('api');
   app.useLogger(['error', 'warn', 'log'])
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -27,7 +29,7 @@ async function bootstrap() {
   }));
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+  Logger.log(`Application Running.`);
 }
 
 bootstrap();
