@@ -8,6 +8,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { databaseConfig } from './config/database.config';
 import { BusinessModule } from './business/business.module';
+import { HealthModule } from './helath/health.module';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { BusinessModule } from './business/business.module';
     UsersModule,
     AuthModule,
     BusinessModule,
+    HealthModule,
   ],
   providers: [
     {
